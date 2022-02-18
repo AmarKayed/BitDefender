@@ -1,0 +1,37 @@
+user: root
+parola: owaspbwa
+
+
+cd var/log/apache2
+
+
+For Kali Root User:
+scp root@192.168.0.103:/var/log/apache2/access.log /root/Desktop
+
+
+For Kali Owasp User
+scp root@192.168.0.103:/var/log/apache2/access.log /home/owasp/Desktop
+
+For Windows:
+scp root@192.168.0.103:/var/log/apache2/access.log /c/Users/akayed/Desktop
+
+ssh root@192.168.0.103:/var/log/apache2/access.log /c/Users/akayed/Desktop
+
+
+
+
+
+
+
+User Creation Commands Kali Linus:
+
+    useradd -m owasp
+    passwd owasp
+    usermod -a -G sudo owasp
+    chsh -s /bin/bash owasp
+
+
+
+New Kali user:
+    user: owasp
+    password: owasp

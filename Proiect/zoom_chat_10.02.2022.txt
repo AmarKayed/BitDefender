@@ -1,0 +1,19 @@
+From pfilote to Everyone 02:06 PM
+https://resources.infosecinstitute.com/topic/log-analysis-web-attacks-beginners-guide/
+https://www.acunetix.com/blog/articles/injection-attacks/
+https://www.loggly.com/blog/how-to-detect-and-analyze-ddos-attacks-using-log-analysis/
+https://www.acunetix.com/blog/articles/using-logs-to-investigate-a-web-application-attack/
+https://www.acunetix.com/blog/articles/detection-prevention-introduction-web-shells-part-5/
+
+From Silviu Sofronie to Everyone 02:09 PM
+https://resources.infosecinstitute.com/topic/log-analysis-web-attacks-beginners-guide/ -< asta e ok
+cred
+
+
+
+Rezumat:
+
+Fara ddos
+Putem sa facem beta
+Loguri de acces, vezi la request
+Luam fișierele de log din owasp
