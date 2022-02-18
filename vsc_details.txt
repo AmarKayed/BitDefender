@@ -1,0 +1,8 @@
+Work Laptop Default Windows: had synced settings, now it's disconnected but it kept the settings.
+Work Laptop Ubuntu Virtual Box: Never Installed Ubuntu Completely => Never Had Visual Studio Code on it.
+Work Laptop Vmware Kali Linux root user: installed Visual Studio Code, but it didn't open because of the root user.
+Work Laptop Vmware Kali Linux owasp user: installed Visual Studio Code, but didn't sync settings, only changed the toggle terminal shortcut.
+Work Laptop Virtual Box Owasp: Cannot have Visual Studio Code on it at all, since it's just a terminal.
+Work Laptop Vmware Owasp 1 and 2: didn't work to install the virtual machine at all.
+Work Laptop Metaspolitable: didn't open Visual Studio Code on it at all.
+
