@@ -2,7 +2,7 @@ user: root
 parola: owaspbwa
 
 
-cd var/log/apache2
+cd /var/log/apache2
 
 
 For Kali Root User:
@@ -35,3 +35,26 @@ User Creation Commands Kali Linus:
 New Kali user:
     user: owasp
     password: owasp
+
+
+
+
+
+
+
+
+
+
+
+Personal Laptop Owasp:
+    http://192.168.0.105
+
+    user: root
+    parola: owaspbwa
+
+    cd /var/log/apache2
+
+
+
+For Kali Owasp User
+scp root@192.168.0.105:/var/log/apache2/access.log /home/owasp/Desktop
