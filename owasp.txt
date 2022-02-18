@@ -55,6 +55,9 @@ Personal Laptop Owasp:
     cd /var/log/apache2
 
 
+New Kali user:
+    user: owasp
+    password: owasp
 
 For Kali Owasp User
 scp root@192.168.0.105:/var/log/apache2/access.log /home/owasp/Desktop
