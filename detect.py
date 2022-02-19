@@ -208,17 +208,27 @@ sqlWords = ['union select',
 harmfulCharacters = ['\'', '\"']
 
 for i in logs_list:
-    # print(i, end = '\n\n')
+    
     url = i[5] = urllib.parse.unquote_plus(i[5]).lower()
 
-    path, injection, version = url.rsplit('/', maxsplit = 2)
+    # print(i[5], end = '\n\n')
+    
+    # path, injection, version = url.rsplit('/', maxsplit = 2)
 
+    injection = url.split('?', maxsplit = 1)
+
+    if len(injection) == 1:       # This means we never had any ? in the url and hense no possbile injection could've been attempted
+        continue
+    else:                   # Else we will only take the part of the url that contains the actual request parameters, since we donot need the path.
+        injection = injection[1]
+    
+    
     injection = urllib.parse.unquote_plus(injection)
     # We first try to find any harmful characters
 
     # print(injection, end = '\n\n')
-
-
+    
+    
     continue_detecting = True       # Determine whether we should proceed with all the tests if an injection has been detected early
 
     for char in harmfulCharacters:
@@ -230,7 +240,7 @@ for i in logs_list:
     if continue_detecting == False:
         continue
             
-
+    
     if 'or' in injection and ('##' in injection or '--' in injection):
         
         indexBeforeOr = injection.find('or') - 1                # indexBeforeOr == index before the index at which we find the first "or" word in our url
@@ -255,8 +265,9 @@ for i in logs_list:
 
 
     """
+    
 
-
+    
     # If we didn't detect any harmful characters or if we only detected an even number of harmful characters
     # We will try to detect any SQL Words which could form an Injection:
 
@@ -267,12 +278,26 @@ for i in logs_list:
     # Then we replace the characters = and & with a space
     for toBeReplacedCharacter in ['=', '&']:
         injection = injection.replace(toBeReplacedCharacter, ' ')
+    # Then we must also consider the possibility of having inline comments:
     
+    original = injection
+    
+    for j in range(len(injection)):
+        if j+1 < len(injection):
+            if injection[j] in ['\\', '/'] and injection[j+1] == '*':
+                k = j+2
+                if k+1 < len(injection):
+                    while injection[k] != '*' and injection[k+1] not in ['\\', '/']:
+                        k +=1
+                injection = injection[:j] + injection[k+2:]
+    print(i[3], '\"{}\"'.format(original), injection)
+
+ 
     # Lastly, we remove any duplicate spaces that have formed as a result of removing = and &
     injection = injection.replace('  ', ' ')            # removing any duplicate spaces
     
     # Now our injection will look like this:
-    print(injection.split(' '), end = '\n\n')
+    # print(i[3], original, injection.split(' '), end = '\n\n')
 
     # If we find at least one SQL related word or combination of words then we consider it a valid injection
 
@@ -286,9 +311,7 @@ for i in logs_list:
 
     for word in injectionWords:
         if word in sqlWords:
-            
             detected_injections.append(i)
-            
             break
             
     
