@@ -193,7 +193,17 @@ detected_injections = []
 
 from functools import reduce
 
-sqlWords = ['select', 'union', 'create', 'alter', 'drop', 'insert', 'update', 'delete']
+sqlWords = ['union select', 
+            'create table', 
+            'alter table', 
+            'drop table', 
+            'drop',             # for the case of a Drop on the database
+            'insert into', 
+            'update', 
+            'delete from',
+            'union',            # The last two words are for the case in which there is something between union and select in the injection
+            'select'
+            ]
 
 harmfulCharacters = ['\'', '\"']
 
@@ -207,12 +217,18 @@ for i in logs_list:
     # We first try to find any harmful characters
 
     # print(injection, end = '\n\n')
-    
+
+
+    continue_detecting = True       # Determine whether we should proceed with all the tests if an injection has been detected early
+
     for char in harmfulCharacters:
         if injection.count(char)%2 == 1 :           # if we find at least one harmful character for an odd number of times then there will be at the very least an SQL error, if not a possible SQL Injection.
             # print('HARMFUL CHARACTER: {}'.format(char) , injection, injection.count(char))
             detected_injections.append(i)
-            
+            continue_detecting = False
+    
+    if continue_detecting == False:
+        continue
             
 
     if 'or' in injection and ('##' in injection or '--' in injection):
@@ -228,16 +244,58 @@ for i in logs_list:
         # equals = url.split('=')
         # print(equals, end = '\n\n')
 
-    for toBeStrippedCharcter in ['?', '\"', '\'']:
-        injection = injection.strip(toBeStrippedCharcter)
+
+    """
+    SQLi with even number of harmful characters
+
+    ' or id = ' union select 1, 2
+
+    The first ' closes the id = '
+    and the second ' cl
+
+
+    """
+
+
+    # If we didn't detect any harmful characters or if we only detected an even number of harmful characters
+    # We will try to detect any SQL Words which could form an Injection:
+
+    # We first remove the characters ?, ' and "
+    for toBeRemovedCharcter in ['?', '\"', '\'']:
+        injection = injection.replace(toBeRemovedCharcter, '')
+
+    # Then we replace the characters = and & with a space
     for toBeReplacedCharacter in ['=', '&']:
         injection = injection.replace(toBeReplacedCharacter, ' ')
-    print(injection, end = '\n\n')
+    
+    # Lastly, we remove any duplicate spaces that have formed as a result of removing = and &
+    injection = injection.replace('  ', ' ')            # removing any duplicate spaces
+    
+    # Now our injection will look like this:
+    print(injection.split(' '), end = '\n\n')
+
+    # If we find at least one SQL related word or combination of words then we consider it a valid injection
+
+    injectionWords = injection.split(' ')
+
+    # We combine union with select if it exists such that we get 'union select'
+    for j in range(len(injectionWords)):
+        if injectionWords[j] == 'union' and j + 1 < len(injectionWords):
+            injectionWords[j] = injectionWords[j] + ' ' + injectionWords[j+1]
+            # injectionWords.pop(j+1)   # Now that we've combined the two elements, there is no need to keep the next element
+
+    for word in injectionWords:
+        if word in sqlWords:
+            
+            detected_injections.append(i)
+            
+            break
+            
     
 
 # test = list(range(10))
 test = [x for x in range(10) if x % 2 == 0]
-print(reduce(lambda x, y: x and y, list((map(lambda x: x%2 == 0, test)))))
+# print('aici', reduce(lambda x, y: x and y, list((map(lambda x: x%2 == 0, test)))))
 
 # x = logs_list[0][5]
 # print(x.lower())
@@ -253,3 +311,11 @@ print(x, injection, sep = '\n')
  """
  # print("ceva", "altceva", end = ' ')
 
+# print(*detected_injections, sep = '\n\n')
+
+
+print('\n\n\n\n\nDETECTED INJECTIONS\n\n\n\n\n')
+
+print(*detected_injections, sep = '\n\n', end = '\n\n')
+
+print('Total injections: {}\n\n'.format(len(detected_injections)))
