@@ -300,17 +300,22 @@ for i in logs_list:
     # print(i[3], original, injection.split(' '), end = '\n\n')
 
     # If we find at least one SQL related word or combination of words then we consider it a valid injection
+    """ 
+        injectionWords = injection.split(' ')
 
-    injectionWords = injection.split(' ')
+        # We combine union with select if it exists such that we get 'union select'
+        for j in range(len(injectionWords)):
+            if injectionWords[j] == 'union' and j + 1 < len(injectionWords):
+                injectionWords[j] = injectionWords[j] + ' ' + injectionWords[j+1]
+                # injectionWords.pop(j+1)   # Now that we've combined the two elements, there is no need to keep the next element
 
-    # We combine union with select if it exists such that we get 'union select'
-    for j in range(len(injectionWords)):
-        if injectionWords[j] == 'union' and j + 1 < len(injectionWords):
-            injectionWords[j] = injectionWords[j] + ' ' + injectionWords[j+1]
-            # injectionWords.pop(j+1)   # Now that we've combined the two elements, there is no need to keep the next element
-
-    for word in injectionWords:
-        if word in sqlWords:
+        for word in injectionWords:
+            if word in sqlWords:
+                detected_injections.append(i)
+                break
+    """
+    for word in sqlWords:
+        if injection.find(word) != -1:
             detected_injections.append(i)
             break
             
