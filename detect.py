@@ -1,11 +1,14 @@
 from datetime import datetime, date, time
 
-import urllib
+
 import os
 
 stream = os.popen('sshpass -p owaspbwa scp root@192.168.0.105:/var/log/apache2/access.log /mnt/c/Users/amer2/Desktop/BitDefender')
 # output = stream.readlines()
+# print(output)
 
+
+# sshpass -p owaspbwa scp root@192.168.0.105:/var/log/apache2/access.log /mnt/c/Users/amer2/Desktop/BitDefender
 
 def parsare_log(linie):
     ok = 1
@@ -180,11 +183,73 @@ d, nr = date_time_analizer(dates, '192.168.1.109')
 
 
 
+# print(*logs_list, sep = '\n\n')
 
+# /dvwa/vulnerabilities/sqli/?id=%27or+1%3D1%3B+%23%23&Submit=Submit_HTTP/1.1
 
+import urllib.parse
 
-print(logs_list[-1])
+detected_injections = []
 
+from functools import reduce
 
+sqlWords = ['select', 'union', 'create', 'alter', 'drop', 'insert', 'update', 'delete']
 
-# sshpass -p owaspbwa scp root@192.168.0.105:/var/log/apache2/access.log /mnt/c/Users/amer2/Desktop/BitDefender
+harmfulCharacters = ['\'', '\"']
+
+for i in logs_list:
+    # print(i, end = '\n\n')
+    url = i[5] = urllib.parse.unquote_plus(i[5]).lower()
+
+    path, injection, version = url.rsplit('/', maxsplit = 2)
+
+    injection = urllib.parse.unquote_plus(injection)
+    # We first try to find any harmful characters
+
+    # print(injection, end = '\n\n')
+    
+    for char in harmfulCharacters:
+        if injection.count(char)%2 == 1 :           # if we find at least one harmful character for an odd number of times then there will be at the very least an SQL error, if not a possible SQL Injection.
+            # print('HARMFUL CHARACTER: {}'.format(char) , injection, injection.count(char))
+            detected_injections.append(i)
+            
+            
+
+    if 'or' in injection and ('##' in injection or '--' in injection):
+        
+        indexBeforeOr = injection.find('or') - 1                # indexBeforeOr == index before the index at which we find the first "or" word in our url
+        
+        if injection[indexBeforeOr] in ['\'', '\"']:            # We verify if we had ' or "" before the or parameter from the URL
+            detected_injections.append(i)                       # If we find harmful characters, then we append the log to the detected_injections list
+            # print(url, end = '\n\n')                            # We also print the url in the console
+        
+        # print(injection, end = '\n\n')
+        # print(i, end = '\n\n')
+        # equals = url.split('=')
+        # print(equals, end = '\n\n')
+
+    for toBeStrippedCharcter in ['?', '\"', '\'']:
+        injection = injection.strip(toBeStrippedCharcter)
+    for toBeReplacedCharacter in ['=', '&']:
+        injection = injection.replace(toBeReplacedCharacter, ' ')
+    print(injection, end = '\n\n')
+    
+
+# test = list(range(10))
+test = [x for x in range(10) if x % 2 == 0]
+print(reduce(lambda x, y: x and y, list((map(lambda x: x%2 == 0, test)))))
+
+# x = logs_list[0][5]
+# print(x.lower())
+"""     
+x = logs_list[-1][5]
+
+path, injection, version = x.rsplit('/', maxsplit = 2)
+
+injection = urllib.parse.unquote_plus(injection)
+
+print(x, injection, sep = '\n')
+
+ """
+ # print("ceva", "altceva", end = ' ')
+
