@@ -1,8 +1,10 @@
 from datetime import datetime, date, time
 
-# import os
 import urllib
+import os
 
+stream = os.popen('sshpass -p owaspbwa scp root@192.168.0.105:/var/log/apache2/access.log /mnt/c/Users/amer2/Desktop/BitDefender')
+# output = stream.readlines()
 
 
 def parsare_log(linie):
@@ -178,11 +180,11 @@ d, nr = date_time_analizer(dates, '192.168.1.109')
 
 
 
-import os
 
-stream = os.popen('scp -oHostKeyAlgorithms=+ssh-dss root@192.168.0.105:/var/log/apache2/access.log /c/Users/amer2/Desktop/BitDefender')
-output = stream.readlines()
-print(output)
 
-print(logs_list[0])
-# ssh -oHostKeyAlgorithms=+ssh-dss root@192.168.8.109
+
+print(logs_list[-1])
+
+
+
+# sshpass -p owaspbwa scp root@192.168.0.105:/var/log/apache2/access.log /mnt/c/Users/amer2/Desktop/BitDefender
