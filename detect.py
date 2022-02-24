@@ -203,7 +203,7 @@ def SQLi():
                 ]
     # I've commented the "union" and "select" keywords to avoid detecting inputs such as "select is my password" or "I love union".
     # If we want our code to be stricter, we can uncomment those two words.
-    
+
     harmfulCharacters = ['\'', '\"', ';']           # List of possible harmful characters that could cause an SQLi
 
     for i in logs_list:
@@ -248,7 +248,7 @@ def SQLi():
 
 # Test 2: Comments
 
-        if ('or' in injection or 'and' in injection) and ('##' in injection or '--' in injection):      # If no harmful characters have been detected, then we start searching for comments in the injection
+        if 'or' in injection and ('##' in injection or '--' in injection):      # If no harmful characters have been detected, then we start searching for comments in the injection
             
             indexBeforeOr = injection.find('or') - 1                            # indexBeforeOr == index before the index at which we find the first "or" word in our url
             

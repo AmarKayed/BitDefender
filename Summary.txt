@@ -1,2 +1,66 @@
-This is a summary explanation of the "detect.py" file.
+Ideea functiei SQLi() este sa trecem logul nostru "suspect" prin mai multe
+teste. Testele sunt in ordinea importantei, incepand cu cel mai simplu caz
+prin care putem detecta un SQL injection si ajungand la ultimul test unde, 
+pana in acel punct, suspectul deja a fost transformat din format URL la un 
+text simplu ce contine doar cuvinte separate printr-un singur spatiu.
+Practic, primele teste sunt cazurile cele mai simple si rapide, ultimul test
+cel decisiv.
+
+
+Prima data, inainte de a trece prin orice test, vom decoda URL-ul obtinut
+din lista cu toate log-urile astfel incat sa avem un text ce nu are coduri
+unicode in loc de caractere ASCII.
+
+Dupa asta, obtinem partea din URL ce contine va contine posibilul injection, 
+realizam acest lucru printr-un split in functie de "?".
+(injection-ul este bucata din dreapta lui "?")
+
+Testul "0" ar fi cazul cel mai de baza, anume atunci cand nu avem niciun input si
+deci nu putem avea niciun injection.
+
+Primul test adevarat este detectarea unui numar impar de caractere malitioase.
+Alegem un numar impar, intrucat daca avem un numar par se va genera cel mult un SQL error, nu un injection.
+
+Al doilea test este in cazul in care avem un "Comment Injection", pentru asta
+incercam sa detectam daca avem un "or" combinat cu un comentariu,
+daca da, atunci am detectat un posibil injection.
+
+Al treilea test va fi practic sa scanam si sa stergem toate 
+caracterele specifice unui URL din suspectul nostru.
+
+Al patrulea test este sa detectam "Inline Comments Injection", pentru asta
+cautam simbolurile "/*" si "*/" care marcheaza un comentariu, dupa ce le
+detectam, stergem tot ce e intre ele. La acest tip de injection nu putem
+stii cu siguranta daca a fost doar o coincidenta ca cineva sa fi pus
+fix combinatia asta la parola, asa ca nu il adaugam la lista injection-urilor
+detectate, in schimb il lasam sa treaca la ultimul test care va determina 
+cu adevarat daca suspectul este sau nu un injection.
+
+Ultimul test primeste suspectul ca fiind doar un text format doar
+din litere mici ale alfabetului englez si spatiu. Ultimul test
+va verifica ceea ce parea intuitiv sa verificam la primul test,
+anume existenta clauzelor din SQL. Daca acestea exista, trebuie
+sa existe in mod direct, adica(spre exemplu) trebuie sa avem literalmente
+cuvantul "select" pentru un injection, nu "selector", "selecting",
+sau alta forma a cuvantului "select".
+
+
+Pe langa cele 5 teste, mai exista multe alte cazuri de injection-uri,
+precum If statement, String Quote, Integer Codes, toate acestea putand
+fii depistate chiar din aceste 5 teste.
+
+
+
+
+
+
+
+Bonus:
+Pentru a putea pregati testele, ne folosim de doua liste:
+    - sqlWords == lista tuturor clauzelor SQL ce pot fi folosite pentru un injection
+            OBSERVATIE: toate clauzele sunt scrise cu litere mici, intrucat pana cand vom
+            ajunge sa le folosim, suspectul nostru deja va fi transformat intr-un text ce contine
+            cuvinte cu litere mici separate printr-un singur spatiu.
+    - harmfulCharacters == lista tuturor caracterelor ce pot provoca un injection
+
 
