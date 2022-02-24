@@ -209,7 +209,11 @@ def SQLi():
                 'update', 
                 'delete from',
                 'union',            # The last two words are for the case in which there is something between union and select in the injection
-                'select'
+                'union all',
+                'select',
+                'order by',
+                'group by',
+                'having'
                 ]
 
     harmfulCharacters = ['\'', '\"', ';']
@@ -261,7 +265,7 @@ def SQLi():
 
 # Test 2: Comments
 
-        if 'or' in injection and ('##' in injection or '--' in injection):      # If no harmful characters have been detected, then we start searching for comments in the injection
+        if ('or' in injection or 'and' in injection) and ('##' in injection or '--' in injection):      # If no harmful characters have been detected, then we start searching for comments in the injection
             
             indexBeforeOr = injection.find('or') - 1                            # indexBeforeOr == index before the index at which we find the first "or" word in our url
             
@@ -350,10 +354,32 @@ def SQLi():
                     break
         """
         for word in sqlWords:
-            if injection.find(word) != -1:
-                detected_injections.append(i)
-                break
-                
+            startIndex = injection.find(word)
+            if startIndex != -1:                        # If we have detected an sqlWord in our injection
+                if injection[startIndex + len(word)] in [' ', ''] and injection[startIndex - 1] in [' ', '']:       # And the sqlWord is isolated
+                    detected_injections.append(i)       # Then it might cause an injection so we add it to the list
+                    break
+                                                        # Else, we simply ignore it
+
+        '''
+        Examples:
+        "selecting drops" will not be considered an injection
+        "text select" will be considered an injection
+        "text selector now" will not be considered an injection
+        
+        '''
+
+        """ 
+
+        if startIndex + len(word) < len(injection):
+            if injection[startIndex + len(word)] == ' ' or :              # If we are sure we have a space after the detected sqlWord or that there is nothing after the detected word
+                if injection[startIndex - 1] == ' '
+            # print('aicicicici                ' + injection[startIndex + len(word):])
+            detected_injections.append(i)
+            break
+        else:   # elif startIndex + len(word) >= len(injection):
+            
+            """
         
 
     # test = list(range(10))
