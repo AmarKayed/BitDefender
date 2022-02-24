@@ -1,0 +1,2 @@
+This is a summary explanation of the "detect.py" file.
+

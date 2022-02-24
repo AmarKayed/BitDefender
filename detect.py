@@ -1,14 +1,10 @@
+import os
 from datetime import datetime, date, time
 
 
-import os
-
+# Setup:
 # stream = os.popen('sshpass -p owaspbwa scp root@192.168.0.105:/var/log/apache2/access.log /mnt/c/Users/amer2/Desktop/BitDefender')
 stream = os.popen('sshpass -p owaspbwa scp root@192.168.56.101:/var/log/apache2/access.log /mnt/c/Users/amer2/Desktop/BitDefender')
-# output = stream.readlines()
-# print(output)
-
-
 # sshpass -p owaspbwa scp root@192.168.0.105:/var/log/apache2/access.log /mnt/c/Users/amer2/Desktop/BitDefender
 # sshpass -p owaspbwa scp root@192.168.56.101:/var/log/apache2/access.log /mnt/c/Users/amer2/Desktop/BitDefender
 # scp root@192.168.56.101:/var/log/apache2/access.log /mnt/c/Users/amer2/Desktop/BitDefender
@@ -180,16 +176,6 @@ d, nr = date_time_analizer(dates, '192.168.1.109')
 
 # --------------------------------------------------------------------------------  De aici incepe codul meu  ---------------------------------------------------------------
 
-
-# for i in logs_list:
-#     print(i)
-
-
-
-# print(*logs_list, sep = '\n\n')
-
-# /dvwa/vulnerabilities/sqli/?id=%27or+1%3D1%3B+%23%23&Submit=Submit_HTTP/1.1
-
 import urllib.parse
 
 from functools import reduce
@@ -204,30 +190,29 @@ def SQLi():
                 'create table', 
                 'alter table', 
                 'drop table', 
-                'drop',             # for the case of a Drop on the database
+                'drop',             # For the case of a drop on the database
                 'insert into', 
                 'update', 
                 'delete from',
-                'union',            # The last two words are for the case in which there is something between union and select in the injection
+                # 'union',            # The last two words are for the case in which there is something between union and select in the injection
                 'union all',
-                'select',
+                # 'select',
                 'order by',
                 'group by',
                 'having'
                 ]
-
-    harmfulCharacters = ['\'', '\"', ';']
+    # I've commented the "union" and "select" keywords to avoid detecting inputs such as "select is my password" or "I love union".
+    # If we want our code to be stricter, we can uncomment those two words.
+    
+    harmfulCharacters = ['\'', '\"', ';']           # List of possible harmful characters that could cause an SQLi
 
     for i in logs_list:
         # print(i[5], end = '\n\n')
         
         url = i[5] = urllib.parse.unquote_plus(i[5]).lower()       # We parse the log URL and make all of its characters lowecase such that we can match them with the sqlWords list
         
-        # url = urllib.parse.unquote_plus(i[5]).lower()       # We parse the log URL and make all of its characters lowecase such that we can match them with the sqlWords list
+        # url = urllib.parse.unquote_plus(i[5]).lower()              # We parse the log URL and make all of its characters lowecase such that we can match them with the sqlWords list
 
-        # print(url, i[5], end = '\n\n', sep = '\t\t\t')
-        
-        # path, injection, version = url.rsplit('/', maxsplit = 2)
 
         injection = url.split('?', maxsplit = 1)            # We extract the injection part of the URL by splitting the URL based on the character '?'
 
@@ -246,8 +231,6 @@ def SQLi():
 # Test 1: Harmful Characters
 
         # We first try to find any harmful characters
-
-        # print(injection, end = '\n\n')
         
         
         continue_detecting = True                           # Variable which determines whether we should proceed with all the tests if an injection has been detected early or not
@@ -291,7 +274,7 @@ def SQLi():
         """
         
 
-# Test 3: SQL Words
+# Test 3: Removing URL Characters
         
         # If we didn't detect any harmful characters or if we only detected an even number of harmful characters
         # We will try to detect any SQL Words which could form an Injection:
@@ -303,6 +286,7 @@ def SQLi():
         # Then we replace the characters = and & with a space
         for toBeReplacedCharacter in ['=', '&']:
             injection = injection.replace(toBeReplacedCharacter, ' ')
+
 
 # Test 4: Inline Comments
 
@@ -329,6 +313,8 @@ def SQLi():
             ce/**/va will not be an SQLi
             while
             dr/*ceva aici*/op will be an SQLi
+
+            ' UnIoN/**/SeLeCt 1, 2      will be an SQLi
         '''
 
     
@@ -339,20 +325,11 @@ def SQLi():
         # print(i[3], original, injection.split(' '), end = '\n\n')
 
         # If we find at least one SQL related word or combination of words then we consider it a valid injection
-        """ 
-            injectionWords = injection.split(' ')
 
-            # We combine union with select if it exists such that we get 'union select'
-            for j in range(len(injectionWords)):
-                if injectionWords[j] == 'union' and j + 1 < len(injectionWords):
-                    injectionWords[j] = injectionWords[j] + ' ' + injectionWords[j+1]
-                    # injectionWords.pop(j+1)   # Now that we've combined the two elements, there is no need to keep the next element
 
-            for word in injectionWords:
-                if word in sqlWords:
-                    detected_injections.append(i)
-                    break
-        """
+# Test 5: SQL Words       
+
+
         for word in sqlWords:
             startIndex = injection.find(word)
             if startIndex != -1:                        # If we have detected an sqlWord in our injection
@@ -369,38 +346,13 @@ def SQLi():
         
         '''
 
-        """ 
+# Included Tests:
+    '''
+    If Statement:
+        ' union select if(1=1, 'true', 'false'), 2 #
+    This injection will be detected due to the fact that it contains: ', union, select, union select and #
 
-        if startIndex + len(word) < len(injection):
-            if injection[startIndex + len(word)] == ' ' or :              # If we are sure we have a space after the detected sqlWord or that there is nothing after the detected word
-                if injection[startIndex - 1] == ' '
-            # print('aicicicici                ' + injection[startIndex + len(word):])
-            detected_injections.append(i)
-            break
-        else:   # elif startIndex + len(word) >= len(injection):
-            
-            """
-        
-
-    # test = list(range(10))
-    test = [x for x in range(10) if x % 2 == 0]
-    # print('aici', reduce(lambda x, y: x and y, list((map(lambda x: x%2 == 0, test)))))
-
-    # x = logs_list[0][5]
-    # print(x.lower())
-    """     
-    x = logs_list[-1][5]
-
-    path, injection, version = x.rsplit('/', maxsplit = 2)
-
-    injection = urllib.parse.unquote_plus(injection)
-
-    print(x, injection, sep = '\n')
-
-    """
-    # print("ceva", "altceva", end = ' ')
-
-    # print(*detected_injections, sep = '\n\n')
+    '''    
 
 
     print('\n\n\n\n\nDETECTED INJECTIONS\n\n\n\n\n')
