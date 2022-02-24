@@ -212,49 +212,62 @@ def SQLi():
                 'select'
                 ]
 
-    harmfulCharacters = ['\'', '\"']
+    harmfulCharacters = ['\'', '\"', ';']
 
     for i in logs_list:
-        
-        url = i[5] = urllib.parse.unquote_plus(i[5]).lower()
-
         # print(i[5], end = '\n\n')
+        
+        url = i[5] = urllib.parse.unquote_plus(i[5]).lower()       # We parse the log URL and make all of its characters lowecase such that we can match them with the sqlWords list
+        
+        # url = urllib.parse.unquote_plus(i[5]).lower()       # We parse the log URL and make all of its characters lowecase such that we can match them with the sqlWords list
+
+        # print(url, i[5], end = '\n\n', sep = '\t\t\t')
         
         # path, injection, version = url.rsplit('/', maxsplit = 2)
 
-        injection = url.split('?', maxsplit = 1)
+        injection = url.split('?', maxsplit = 1)            # We extract the injection part of the URL by splitting the URL based on the character '?'
 
-        if len(injection) == 1:       # This means we never had any ? in the url and hense no possbile injection could've been attempted
-            continue
-        else:                   # Else we will only take the part of the url that contains the actual request parameters, since we donot need the path.
+        if len(injection) == 1:                             # This means we never had any ? in the url and hense no possbile injection could've been attempted
+            continue                                        # Thus, we already know we have nothing else to do
+
+        else:                                               # Else we will only take the part of the url that contains the actual request parameters, since we donot need the path.
             injection = injection[1]
         
-        
-        injection = urllib.parse.unquote_plus(injection)
+        # print('Inainte de urllib.parse: ', injection)
+        injection = urllib.parse.unquote_plus(injection)    # We parse the part of the injection
+        # print('Dupa urllib.parse: ', injection)
+
+
+
+# Test 1: Harmful Characters
+
         # We first try to find any harmful characters
 
         # print(injection, end = '\n\n')
         
         
-        continue_detecting = True       # Determine whether we should proceed with all the tests if an injection has been detected early
-
-        for char in harmfulCharacters:
-            if injection.count(char)%2 == 1 :           # if we find at least one harmful character for an odd number of times then there will be at the very least an SQL error, if not a possible SQL Injection.
+        continue_detecting = True                           # Variable which determines whether we should proceed with all the tests if an injection has been detected early or not
+                                                            # This variables saves some time because if we detect an injection from the first test, then there is no point in running al the remaining tests
+        
+        for char in harmfulCharacters:                      # For each harmfulCharacter
+            if injection.count(char)%2 == 1 :               # If we find at least one harmful character for an odd number of times then there will be at the very least an SQL error, if not a possible SQL Injection.
                 # print('HARMFUL CHARACTER: {}'.format(char) , injection, injection.count(char))
-                detected_injections.append(i)
-                continue_detecting = False
+                detected_injections.append(i)               # If we detected an injection, we append it to the detected_injections list
+                continue_detecting = False                  # We also stop running the other tests by changing the continue_detecting's value to False
         
-        if continue_detecting == False:
-            continue
+        if continue_detecting == False:                     # If we don't have to continue detecting
+            continue                                        # Then we skip the remaining tests
                 
-        
-        if 'or' in injection and ('##' in injection or '--' in injection):
+
+# Test 2: Comments
+
+        if 'or' in injection and ('##' in injection or '--' in injection):      # If no harmful characters have been detected, then we start searching for comments in the injection
             
-            indexBeforeOr = injection.find('or') - 1                # indexBeforeOr == index before the index at which we find the first "or" word in our url
+            indexBeforeOr = injection.find('or') - 1                            # indexBeforeOr == index before the index at which we find the first "or" word in our url
             
-            if injection[indexBeforeOr] in ['\'', '\"']:            # We verify if we had ' or "" before the or parameter from the URL
-                detected_injections.append(i)                       # If we find harmful characters, then we append the log to the detected_injections list
-                # print(url, end = '\n\n')                            # We also print the url in the console
+            if injection[indexBeforeOr] in ['\'', '\"']:                        # We verify if we had ' or " before the "or" word from the URL
+                detected_injections.append(i)                                   # If we find harmful characters, then we append the log to the detected_injections list
+                # print(url, end = '\n\n')                                      # We also print the url in the console
             
             # print(injection, end = '\n\n')
             # print(i, end = '\n\n')
@@ -274,6 +287,7 @@ def SQLi():
         """
         
 
+# Test 3: SQL Words
         
         # If we didn't detect any harmful characters or if we only detected an even number of harmful characters
         # We will try to detect any SQL Words which could form an Injection:
@@ -285,6 +299,10 @@ def SQLi():
         # Then we replace the characters = and & with a space
         for toBeReplacedCharacter in ['=', '&']:
             injection = injection.replace(toBeReplacedCharacter, ' ')
+
+# Test 4: Inline Comments
+
+
         # Then we must also consider the possibility of having inline comments:
         
         original = injection
