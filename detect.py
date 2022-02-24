@@ -309,13 +309,23 @@ def SQLi():
         
         for j in range(len(injection)):
             if j+1 < len(injection):
-                if injection[j] in ['\\', '/'] and injection[j+1] == '*':
+                if injection[j] in ['\\', '/'] and injection[j+1] == '*':           # If we find the start of a comment
                     k = j+2
                     if k+1 < len(injection):
-                        while injection[k] != '*' and injection[k+1] not in ['\\', '/']:
+                        while injection[k] != '*' and injection[k+1] not in ['\\', '/']:    # We calculate the range of the inline comment
                             k +=1
-                    injection = injection[:j] + injection[k+2:]
+                    injection = injection[:j] + injection[k+2:]                         # And then we remove the inline comment, 
+                                                                                        # leaving the whole injection intact in the case we only 
+                                                                                        # have an inline comment without an actual SQL word
         print(i[3], '\"{}\"'.format(original), injection)
+
+
+        '''
+        Example:
+            ce/**/va will not be an SQLi
+            while
+            dr/*ceva aici*/op will be an SQLi
+        '''
 
     
         # Lastly, we remove any duplicate spaces that have formed as a result of removing = and &
