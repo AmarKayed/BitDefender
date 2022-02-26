@@ -204,7 +204,7 @@ def SQLi():
     # I've commented the "union" and "select" keywords to avoid detecting inputs such as "select is my password" or "I love union".
     # If we want our code to be stricter, we can uncomment those two words.
 
-    harmfulCharacters = ['\'', '\"', ';']           # List of possible harmful characters that could cause an SQLi
+    harmfulCharacters = ['\'', '\"']           # List of possible harmful characters that could cause an SQLi
 
     for i in logs_list:
         # print(i[5], end = '\n\n')
@@ -233,17 +233,17 @@ def SQLi():
         # We first try to find any harmful characters
         
         
-        continue_detecting = True                           # Variable which determines whether we should proceed with all the tests if an injection has been detected early or not
-                                                            # This variables saves some time because if we detect an injection from the first test, then there is no point in running al the remaining tests
+        continue_detecting = True                                                           # Variable which determines whether we should proceed with all the tests if an injection has been detected early or not
+                                                                                            # This variables saves some time because if we detect an injection from the first test, then there is no point in running al the remaining tests
         
-        for char in harmfulCharacters:                      # For each harmfulCharacter
-            if injection.count(char)%2 == 1 :               # If we find at least one harmful character for an odd number of times then there will be at the very least an SQL error, if not a possible SQL Injection.
+        for char in harmfulCharacters:                                                      # For each harmfulCharacter
+            if injection.count(char)%2 == 1 and '</script>' not in injection:               # If we find at least one harmful character for an odd number of times then there will be at the very least an SQL error, if not a possible SQL Injection.
                 # print('HARMFUL CHARACTER: {}'.format(char) , injection, injection.count(char))
-                detected_injections.append(i)               # If we detected an injection, we append it to the detected_injections list
-                continue_detecting = False                  # We also stop running the other tests by changing the continue_detecting's value to False
+                detected_injections.append(i)                                               # If we detected an injection, we append it to the detected_injections list
+                continue_detecting = False                                                  # We also stop running the other tests by changing the continue_detecting's value to False
         
-        if continue_detecting == False:                     # If we don't have to continue detecting
-            continue                                        # Then we skip the remaining tests
+        if continue_detecting == False:                                                     # If we don't have to continue detecting
+            continue                                                                        # Then we skip the remaining tests
                 
 
 # Test 2: Comments
@@ -329,7 +329,8 @@ def SQLi():
 
 # Test 5: SQL Words       
 
-
+        
+        
         for word in sqlWords:
             startIndex = injection.find(word)
             if startIndex != -1:                        # If we have detected an sqlWord in our injection
@@ -360,7 +361,7 @@ def SQLi():
     print(*detected_injections, sep = '\n\n', end = '\n\n')
 
     print('Total injections: {}\n\n'.format(len(detected_injections)))
-
+    
     return detected_injections
 
 SQLi()
