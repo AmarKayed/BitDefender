@@ -1,0 +1,28 @@
+Eu m-am ocupat cu partea de SQL Injection. Mi-a placut cel mai mult faptul ca initial credeam ca proiectul este mai dificil, dar pe parcurs cu cat implementam mai mult mi-am dat seama ca este mai simplu decat credeam si chiar foarte placut de facut. 
+
+In linii mari ce mi-a placut a fost(nu neaparat in aceasta ordine):
+    Faptul ca proiectul era pe partea web si puteam sa vad exact cum se generau atacurile si cum apareau ele sub forma de loguri pe care sa le pot accesa.
+    Faptul ca puteam sa lucrez direct cu partea de SQLi/atac asupra bazei de date si sa am multe resurse din care sa vad diversele tipuri de injection-uri pe partea asta de query.
+    Faptul ca, cel putin la SQLi, puteam sa generez teste rapide/query injection-uri care sa imi dea direct intreaga baza de date.
+    Faptul ca am putut sa modularizez codul astfel incat sa trec logul "suspect" prin mai multe teste.
+    Faptul ca puteam sa lucrez direct cu OWASP, unde aveam mai multe pagini web cu nivele diferite de dificultate, care m-au ajutat sa testez din ce in ce mai bine atat injection-urile, cat si script-ul de detectare a log-urilor.
+
+Ce probleme am intampinat:
+    Faptul ca trebuia sa ma asigur de faptul ca tratez fiecare tip de RDMS. De exemplu, serverul de OWASP functiona in PostgreSQL, majoritatea exemplelor/resurselor erau pentru MySQL sau MSSQL, eu stiam Oracle SQL :).
+    Acest lucru devenea tedious la un moment dat, intrucat desi toate RDMS-urile au la baza limbajul SQL, fiecare prezinta cate o particularitate a sa.(Ex: Operatorul pentru comentariu in Oracle SQL este "--", in MySQL este si "#", because why not) 
+    
+Ce am invatat/nu o sa uit/o sa fac de acum incolo:
+    Ca trebuie sa ma gandesc si sa ma pun in locul unui atacator, never going to forget that from now on :). 
+    Sa gasesc work-around-uri atunci cand incerc sa fac un SQLi si el este deja detectat.
+    Sa fiu mai creativ cu "manevrele" pe care le folosesc atunci cand incerc sa fac un bypass
+    (cel mai simplu exemplu care imi vine in minte este sa scriu "Dr/**/Op" in loc de "drop")
+
+Ce vreau sa fac:
+    Sa invat mai mult atat despre SQLi avansat, cat si despre restul tipurilor de injection-uri.
+    Sa invat mai multe despre fiecare RDMS si cum se diferentiaza injection-urile pentru fiecare tip de SQL.
+    Sa invat mai multe despre baze de date NoSQL.
+
+Pe langa SQLi, asa cum a zis si Serban, am incercat sa facem impreuna detectarea automatizata folosind libraria "os" din Python, astfel incat sa ne ia direct access.log-ul din serverul de OWASP si sa ne updateze log-urile in timp real.
+
+
+
